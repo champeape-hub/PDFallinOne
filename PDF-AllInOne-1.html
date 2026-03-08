@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PDF All-in-One — Free PDF Tools</title>
+<meta name="description" content="Free online PDF tools. Merge, compress, convert. 100% private — files never leave your device."/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --green: #16a34a;
+  --green-l: #dcfce7;
+  --green-d: #15803d;
+  --orange: #f97316;
+  --bg: #f8faf9;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 14px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --sh: 0 2px 16px rgba(22,163,74,.08);
+  --shh: 0 8px 32px rgba(22,163,74,.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+
+/* ===== NAVBAR ===== */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,.93);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 24px; height: 64px;
+  display: flex; align-items: center; gap: 16px;
+}
+.logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; cursor: pointer; }
+.logo-icon { width: 36px; height: 36px; background: var(--green); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+.logo-text { font-size: 17px; font-weight: 600; }
+.logo-text strong { color: var(--green); }
+.nav-search {
+  flex: 1; max-width: 340px;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 0 12px; height: 40px;
+  color: var(--muted); transition: border-color .2s;
+}
+.nav-search:focus-within { border-color: var(--green); background: #fff; }
+.nav-search input { border: none; background: none; outline: none; font-family: var(--font); font-size: 14px; color: var(--text); width: 100%; }
+.nav-search input::placeholder { color: var(--muted); }
+.nav-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.lang-btn {
+  background: var(--green-l); border: 1.5px solid var(--green);
+  color: var(--green); font-family: var(--font);
+  font-size: 13px; font-weight: 600;
+  padding: 6px 12px; border-radius: 8px;
+  cursor: pointer; transition: all .2s;
+}
+.lang-btn:hover { background: var(--green); color: #fff; }
+.btn-nav {
+  background: var(--green); color: #fff;
+  font-size: 14px; font-weight: 600;
+  padding: 8px 16px; border-radius: 9px;
+  cursor: pointer; transition: all .2s;
+  border: none; font-family: var(--font);
+}
+.btn-nav:hover { background: var(--green-d); transform: translateY(-1px); }
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; margin-left: auto; }
+.hamburger span { display: block; width: 24px; height: 2.5px; background: var(--text); border-radius: 4px; }
+.mob-menu { display: none; flex-direction: column; padding: 10px 24px 14px; background: #fff; border-top: 1px solid var(--border); gap: 0; }
+.mob-menu a { padding: 11px 0; font-size: 15px; font-weight: 500; border-bottom: 1px solid var(--border); cursor: pointer; display: block; }
+.mob-menu.open { display: flex; }
+
+/* ===== PAGES ===== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative; min-height: 500px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; padding: 80px 24px;
+}
+#blobCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-content { position: relative; z-index: 1; text-align: center; max-width: 660px; animation: fadeUp .7s ease both; }
+.hero-badge {
+  display: inline-block; background: var(--green-l);
+  border: 1.5px solid rgba(22,163,74,.25); color: var(--green-d);
+  font-size: 13px; font-weight: 600;
+  padding: 7px 18px; border-radius: 50px; margin-bottom: 20px;
+}
+.hero h1 { font-size: clamp(2.2rem,6vw,3.8rem); font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+.hero h1 span { color: var(--green); }
+.hero-sub { font-size: 1rem; color: var(--muted); max-width: 500px; margin: 0 auto 24px; line-height: 1.7; }
+.trust-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
+.trust-row span { background: #fff; border: 1.5px solid var(--border); font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 50px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.btn-hero {
+  display: inline-block; background: var(--green); color: #fff;
+  font-size: 16px; font-weight: 700; padding: 14px 34px;
+  border-radius: 12px; box-shadow: 0 4px 20px rgba(22,163,74,.3);
+  transition: all .2s; cursor: pointer; border: none; font-family: var(--font);
+}
+.btn-hero:hover { background: var(--green-d); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(22,163,74,.4); }
+
+/* ===== TOOLS SECTION ===== */
+.tools-sec { padding: 64px 0; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.sec-head { text-align: center; margin-bottom: 44px; }
+.sec-head h2 { font-size: clamp(1.7rem,4vw,2.3rem); font-weight: 800; margin-bottom: 8px; }
+.sec-head p { font-size: .97rem; color: var(--muted); }
+.cat-label {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+}
+.cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(272px,1fr)); gap: 14px; margin-bottom: 36px; }
+.tool-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  cursor: pointer; transition: all .22s; box-shadow: var(--sh);
+  animation: fadeUp .5s ease both;
+}
+.tool-card:hover { border-color: var(--green); transform: translateY(-3px); box-shadow: var(--shh); }
+.tool-card.hidden { display: none; }
+.t-icon { width: 50px; height: 50px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.t-info h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.t-info p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* ===== WHY SECTION ===== */
+.why-sec { background: linear-gradient(135deg,#f0fdf4,#f8faf9); padding: 64px 0; border-top: 1px solid var(--border); }
+.why-sec h2 { text-align: center; font-size: clamp(1.7rem,4vw,2.2rem); font-weight: 800; margin-bottom: 36px; }
+.why-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 18px; }
+.why-card { background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 26px 22px; transition: all .2s; }
+.why-card:hover { border-color: var(--green); transform: translateY(-3px); }
+.why-icon { font-size: 2rem; margin-bottom: 10px; }
+.why-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 7px; }
+.why-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ===== FOOTER ===== */
+footer { background: var(--text); color: #e5e7eb; padding: 44px 0 20px; }
+.foot-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; margin-bottom: 28px; }
+.foot-brand .logo-text { color: #fff; }
+.foot-brand p { margin-top: 8px; font-size: 13px; color: #9ca3af; max-width: 240px; }
+.foot-links { display: flex; flex-direction: column; gap: 8px; }
+.foot-links a { font-size: 14px; color: #9ca3af; transition: color .2s; cursor: pointer; }
+.foot-links a:hover { color: var(--green); }
+.foot-bottom { border-top: 1px solid #374151; padding-top: 16px; font-size: 13px; color: #6b7280; text-align: center; }
+
+/* ===== TOOL MODAL ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 200;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 20px;
+  max-width: 600px; width: 100%;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  animation: fadeUp .3s ease;
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 24px 26px 0; }
+.modal-title { display: flex; align-items: center; gap: 12px; }
+.modal-title h2 { font-size: 1.25rem; font-weight: 800; }
+.modal-close {
+  background: none; border: none; cursor: pointer;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 20px; transition: all .2s;
+}
+.modal-close:hover { background: #f3f4f6; color: var(--text); }
+.modal-body { padding: 18px 26px 26px; }
+.modal-desc { font-size: .9rem; color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+
+/* Upload */
+.upload-area {
+  border: 2.5px dashed var(--green); border-radius: 14px;
+  background: var(--green-l); padding: 38px 20px;
+  text-align: center; cursor: pointer; transition: all .2s;
+  position: relative;
+}
+.upload-area:hover, .upload-area.drag-over { background: #bbf7d0; border-color: var(--green-d); }
+.upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.upload-area h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.upload-area p { font-size: 13px; color: var(--muted); }
+.file-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.f-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.f-icon { font-size: 1.3rem; }
+.f-name { flex: 1; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.f-size { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+.f-del { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 17px; padding: 2px 6px; border-radius: 6px; transition: all .2s; }
+.f-del:hover { background: #fee2e2; color: #dc2626; }
+
+/* Buttons & progress */
+.action-area { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.progress-bar { height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; display: none; }
+.progress-bar.on { display: block; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width .3s; width: 0%; }
+.status-msg { font-size: 13px; color: var(--muted); text-align: center; min-height: 18px; }
+.status-msg.ok { color: var(--green); font-weight: 600; }
+.status-msg.err { color: #dc2626; font-weight: 600; }
+.btn-primary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--green); color: #fff; font-family: var(--font);
+  font-size: 15px; font-weight: 700; padding: 14px;
+  border-radius: 12px; border: none; cursor: pointer;
+  transition: all .2s; width: 100%;
+  box-shadow: 0 4px 16px rgba(22,163,74,.28);
+}
+.btn-primary:hover:not(:disabled) { background: var(--green-d); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn-dl {
+  display: none; align-items: center; justify-content: center; gap: 8px;
+  background: #1d4ed8; color: #fff; font-family: var(--font);
+  font-size: 14px; font-weight: 700; padding: 13px;
+  border-radius: 12px; border: none; cursor: pointer;
+  transition: all .2s; width: 100%; text-decoration: none;
+}
+.btn-dl.on { display: flex; }
+.btn-dl:hover { background: #1e40af; transform: translateY(-1px); }
+.priv-note {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: var(--green-l); border: 1.5px solid rgba(22,163,74,.2);
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 13px; color: var(--green-d); font-weight: 500;
+  margin-top: 14px; line-height: 1.5;
+}
+
+/* Watermark controls */
+.ctrl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.ctrl-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--text); }
+.ctrl-grid input, .ctrl-grid select { border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; font-family: var(--font); font-size: 13px; outline: none; transition: border .2s; }
+.ctrl-grid input:focus, .ctrl-grid select:focus { border-color: var(--green); }
+.ctrl-full { grid-column: 1 / -1; }
+
+/* Result Preview Area */
+.result-preview {
+  display: none;
+  margin-top: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f9fafb;
+}
+.result-preview.on { display: block; }
+.result-preview-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; font-weight: 600; color: var(--text);
+}
+.result-preview-head span { color: var(--green); }
+.result-preview-body { padding: 14px; }
+
+/* PDF preview iframe */
+.pdf-preview-frame {
+  width: 100%; height: 340px;
+  border: none; border-radius: 8px;
+  background: #fff;
+}
+
+/* Image grid preview */
+.img-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+.img-preview-grid img {
+  width: 100%; border-radius: 8px;
+  border: 1px solid var(--border);
+  object-fit: contain; background: #fff;
+  cursor: pointer; transition: transform .2s;
+}
+.img-preview-grid img:hover { transform: scale(1.03); }
+
+/* Info card preview (for compress/merge stats) */
+.result-info-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.result-info-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 13px;
+}
+.result-info-row .label { color: var(--muted); }
+.result-info-row .value { font-weight: 700; color: var(--text); }
+.result-info-row .value.green { color: var(--green); }
+.result-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--green-l); color: var(--green-d);
+  font-size: 13px; font-weight: 600;
+  padding: 8px 14px; border-radius: 8px;
+  margin-top: 4px; width: fit-content;
+}
+
+/* Privacy page */
+.prose { max-width: 700px; margin: 0 auto; padding: 56px 24px; }
+.prose h1 { font-size: 1.9rem; font-weight: 800; margin-bottom: 6px; }
+.prose .date { color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+.prose h2 { font-size: 1.1rem; font-weight: 700; margin: 28px 0 8px; color: var(--green-d); }
+.prose p { font-size: 14px; color: #374151; line-height: 1.8; margin-bottom: 12px; }
+.prose ul { padding-left: 18px; margin-bottom: 12px; }
+.prose li { font-size: 14px; color: #374151; line-height: 1.8; margin-bottom: 5px; }
+.hl-box { background: var(--green-l); border: 1.5px solid rgba(22,163,74,.2); border-radius: 12px; padding: 18px 22px; margin-bottom: 28px; }
+.hl-box p { margin: 0; font-weight: 600; color: var(--green-d); font-size: 14px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 20px; transition: color .2s; cursor: pointer; }
+.back-link:hover { color: var(--green); }
+
+/* RTL */
+body.ur { direction: rtl; text-align: right; }
+body.ur .nav-inner { flex-direction: row-reverse; }
+body.ur .tool-card { flex-direction: row-reverse; }
+body.ur .f-item { flex-direction: row-reverse; }
+body.ur .priv-note { flex-direction: row-reverse; }
+body.ur .cat-label { flex-direction: row-reverse; }
+body.ur .modal-title { flex-direction: row-reverse; }
+body.ur .modal-head { flex-direction: row-reverse; }
+body.ur .back-link { flex-direction: row-reverse; }
+body.ur .trust-row span { direction: rtl; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-search, .nav-right { display: none; }
+  .hamburger { display: flex; }
+  .hero { padding: 56px 20px; min-height: auto; }
+  .tools-grid { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr 1fr; }
+  .foot-top { flex-direction: column; }
+  .modal { border-radius: 16px; }
+  .modal-head { padding: 20px 20px 0; }
+  .modal-body { padding: 14px 20px 22px; }
+  .ctrl-grid { grid-template-columns: 1fr; }
+  .ctrl-full { grid-column: 1; }
+}
+@media (max-width: 480px) {
+  .why-grid { grid-template-columns: 1fr; }
+  .trust-row span { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="logo" onclick="showPage('home')">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#fff" stroke-width="2"/><path d="M14 2v6h6M9 13h6M9 17h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <span class="logo-text">PDF <strong>All-in-One</strong></span>
+    </div>
+    <div class="nav-search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search tools..." data-en-ph="Search tools..." data-ur-ph="ٹول تلاش کریں..."/>
+    </div>
+    <div class="nav-right">
+      <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN | اردو</button>
+      <button class="btn-nav" onclick="showPage('home')" data-en="All Tools" data-ur="تمام ٹولز">All Tools</button>
+    </div>
+    <button class="hamburger" onclick="toggleMob()"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mob-menu" id="mobMenu">
+    <a onclick="showPage('home');toggleMob()" data-en="🏠 All Tools" data-ur="🏠 تمام ٹولز">🏠 All Tools</a>
+    <a onclick="showPage('privacy');toggleMob()" data-en="🔒 Privacy Policy" data-ur="🔒 رازداری کی پالیسی">🔒 Privacy Policy</a>
+    <a onclick="toggleLang();toggleMob()" id="mobLangLink">🌐 EN | اردو</a>
+  </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div class="page active" id="page-home">
+
+  <section class="hero">
+    <canvas id="blobCanvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge" data-en="✦ 100% Free — No Sign Up Needed" data-ur="✦ بالکل مفت — کوئی اکاؤنٹ نہیں">✦ 100% Free — No Sign Up Needed</div>
+      <h1 data-en="All PDF Tools.<br><span>One Place.</span>" data-ur="تمام PDF ٹولز۔<br><span>ایک جگہ۔</span>">All PDF Tools.<br><span>One Place.</span></h1>
+      <p class="hero-sub" data-en="Merge, split, compress, convert — all free. Files never leave your device." data-ur="ضم، تقسیم، کمپریس — سب مفت۔ فائلیں آپ کے ڈیوائس سے باہر نہیں جاتیں۔">Merge, split, compress, convert — all free. Files never leave your device.</p>
+      <div class="trust-row">
+        <span>🔒 <span data-en="Files stay on device" data-ur="فائلیں محفوظ">Files stay on device</span></span>
+        <span>⚡ <span data-en="Instant processing" data-ur="فوری پروسیسنگ">Instant processing</span></span>
+        <span>✅ <span data-en="No hidden fees" data-ur="کوئی چھپی فیس نہیں">No hidden fees</span></span>
+      </div>
+      <button class="btn-hero" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})" data-en="Explore All Tools ↓" data-ur="تمام ٹولز دیکھیں ↓">Explore All Tools ↓</button>
+    </div>
+  </section>
+
+  <section class="tools-sec" id="tools">
+    <div class="container">
+      <div class="sec-head">
+        <h2 data-en="Everything You Need" data-ur="جو چاہیے سب یہاں">Everything You Need</h2>
+        <p data-en="Professional PDF tools — completely free, no account needed" data-ur="پروفیشنل PDF ٹولز — بالکل مفت، کوئی اکاؤنٹ نہیں">Professional PDF tools — completely free, no account needed</p>
+      </div>
+
+      <!-- Organize -->
+      <div class="cat-label"><span class="cat-dot" style="background:#16a34a"></span><span data-en="Organize" data-ur="ترتیب دیں">Organize</span></div>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="openTool('merge')">
+          <div class="t-icon" style="background:#dcfce7;color:#16a34a"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6H5a2 2 0 00-2 2v9a2 2 0 002 2h3M16 6h3a2 2 0 012 2v9a2 2 0 01-2 2h-3M12 3v18M9 9l3-3 3 3M9 15l3 3 3-3"/></svg></div>
+          <div class="t-info"><h3 data-en="Merge PDF" data-ur="PDF ضم کریں">Merge PDF</h3><p data-en="Combine multiple PDFs into one file" data-ur="متعدد PDFs کو ایک میں ملائیں">Combine multiple PDFs into one file</p></div>
+        </div>
+        <div class="tool-card" onclick="openTool('split')">
+          <div class="t-icon" style="background:#dcfce7;color:#16a34a"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 6h3a2 2 0 012 2v9a2 2 0 01-2 2h-3M8 6H5a2 2 0 00-2 2v9a2 2 0 002 2h3M12 3v18M15 9l3 3-3 3M9 9L6 12l3 3"/></svg></div>
+          <div class="t-info"><h3 data-en="Split PDF" data-ur="PDF تقسیم کریں">Split PDF</h3><p data-en="Extract pages into separate files" data-ur="صفحات کو الگ فائلوں میں نکالیں">Extract pages into separate files</p></div>
+        </div>
+        <div class="tool-card" onclick="openTool('rotate')">
+          <div class="t-icon" style="background:#dcfce7;color:#16a34a"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38"/></svg></div>
+          <div class="t-info"><h3 data-en="Rotate PDF" data-ur="PDF گھمائیں">Rotate PDF</h3><p data-en="Fix page orientation easily" data-ur="صفحات کی سمت درست کریں">Fix page orientation easily</p></div>
+        </div>
+      </div>
+
+      <!-- Convert -->
+      <div class="cat-label"><span class="cat-dot" style="background:#2563eb"></span><span data-en="Convert" data-ur="تبدیل کریں">Convert</span></div>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="openTool('img2pdf')">
+          <div class="t-icon" style="background:#dbeafe;color:#2563eb"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="t-info"><h3 data-en="Image to PDF" data-ur="تصویر سے PDF">Image to PDF</h3><p data-en="Convert JPG/PNG images to PDF" data-ur="JPG/PNG تصاویر کو PDF میں بدلیں">Convert JPG/PNG images to PDF</p></div>
+        </div>
+        <div class="tool-card" onclick="openTool('pdf2img')">
+          <div class="t-icon" style="background:#dbeafe;color:#2563eb"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><circle cx="10" cy="13" r="2"/><path d="M20 17l-2-2-4 4"/></svg></div>
+          <div class="t-info"><h3 data-en="PDF to Image" data-ur="PDF سے تصویر">PDF to Image</h3><p data-en="Convert PDF pages to JPG images" data-ur="PDF صفحات کو JPG میں بدلیں">Convert PDF pages to JPG images</p></div>
+        </div>
+      </div>
+
+      <!-- Optimize -->
+      <div class="cat-label"><span class="cat-dot" style="background:#f97316"></span><span data-en="Optimize" data-ur="بہتر بنائیں">Optimize</span></div>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="openTool('compress')">
+          <div class="t-icon" style="background:#ffedd5;color:#f97316"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M12 22V12M3.27 6.96L12 12l8.73-5.04"/></svg></div>
+          <div class="t-info"><h3 data-en="Compress PDF" data-ur="PDF کمپریس کریں">Compress PDF</h3><p data-en="Reduce file size without quality loss" data-ur="معیار کھوئے بغیر سائز کم کریں">Reduce file size without quality loss</p></div>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div class="cat-label"><span class="cat-dot" style="background:#dc2626"></span><span data-en="Security" data-ur="سیکیورٹی">Security</span></div>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="openTool('watermark')">
+          <div class="t-icon" style="background:#fee2e2;color:#dc2626"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="t-info"><h3 data-en="Watermark PDF" data-ur="PDF واٹر مارک">Watermark PDF</h3><p data-en="Add custom text watermark to PDF" data-ur="PDF پر کسٹم واٹر مارک لگائیں">Add custom text watermark to PDF</p></div>
+        </div>
+      </div>
+
+      <!-- Edit -->
+      <div class="cat-label"><span class="cat-dot" style="background:#7c3aed"></span><span data-en="Edit" data-ur="ترمیم">Edit</span></div>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="openTool('annotate')">
+          <div class="t-icon" style="background:#ede9fe;color:#7c3aed"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div class="t-info"><h3 data-en="Annotate PDF" data-ur="PDF پر نوٹس">Annotate PDF</h3><p data-en="Add text notes and annotations" data-ur="PDF پر نوٹس اور تحریر شامل کریں">Add text notes and annotations</p></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="why-sec">
+    <div class="container">
+      <h2 data-en="Why PDF All-in-One?" data-ur="PDF All-in-One کیوں؟">Why PDF All-in-One?</h2>
+      <div class="why-grid">
+        <div class="why-card"><div class="why-icon">🔒</div><h3 data-en="100% Private" data-ur="مکمل رازداری">100% Private</h3><p data-en="Files processed in your browser. Never reach our servers." data-ur="فائلیں آپ کے براؤزر میں پروسیس ہوتی ہیں۔ سرور تک نہیں پہنچتیں۔">Files processed in your browser. Never reach our servers.</p></div>
+        <div class="why-card"><div class="why-icon">⚡</div><h3 data-en="Lightning Fast" data-ur="بجلی کی رفتار">Lightning Fast</h3><p data-en="No upload wait. Instant processing on your device." data-ur="کوئی انتظار نہیں۔ فوری پروسیسنگ۔">No upload wait. Instant processing on your device.</p></div>
+        <div class="why-card"><div class="why-icon">✅</div><h3 data-en="Always Free" data-ur="ہمیشہ مفت">Always Free</h3><p data-en="No fees, no subscriptions, no credit card ever." data-ur="کوئی فیس نہیں، کوئی سبسکرپشن نہیں۔">No fees, no subscriptions, no credit card ever.</p></div>
+        <div class="why-card"><div class="why-icon">📱</div><h3 data-en="Works Everywhere" data-ur="ہر جگہ کام">Works Everywhere</h3><p data-en="Mobile, tablet, desktop — any browser, any device." data-ur="موبائل، ٹیبلیٹ، ڈیسک ٹاپ — ہر جگہ۔">Mobile, tablet, desktop — any browser, any device.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="foot-top">
+        <div class="foot-brand">
+          <div class="logo" onclick="showPage('home')">
+            <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#fff" stroke-width="2"/><path d="M14 2v6h6M9 13h6M9 17h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <span class="logo-text">PDF <strong>All-in-One</strong></span>
+          </div>
+          <p data-en="Free PDF tools that respect your privacy." data-ur="مفت PDF ٹولز جو آپ کی رازداری کا احترام کرتے ہیں۔">Free PDF tools that respect your privacy.</p>
+        </div>
+        <div class="foot-links">
+          <a onclick="showPage('home')" data-en="Home" data-ur="ہوم">Home</a>
+          <a onclick="showPage('privacy')" data-en="Privacy Policy" data-ur="رازداری کی پالیسی">Privacy Policy</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span data-en="© 2025 PDF All-in-One. All tools are free forever." data-ur="© 2025 PDF All-in-One. تمام ٹولز ہمیشہ مفت۔">© 2025 PDF All-in-One. All tools are free forever.</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== PRIVACY PAGE ===== -->
+<div class="page" id="page-privacy">
+  <div class="prose">
+    <div class="back-link" onclick="showPage('home')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-en="Back to Home" data-ur="ہوم پر واپس">Back to Home</span>
+    </div>
+    <h1 data-en="Privacy Policy" data-ur="رازداری کی پالیسی">Privacy Policy</h1>
+    <p class="date" data-en="Last updated: January 2025" data-ur="آخری تازہ کاری: جنوری 2025">Last updated: January 2025</p>
+    <div class="hl-box"><p>🔒 <span data-en="Short version: Your files never leave your device. We don't collect, store, or see your documents — ever." data-ur="مختصر: آپ کی فائلیں کبھی آپ کے ڈیوائس سے نہیں جاتیں۔ ہم آپ کے دستاویزات کبھی نہیں دیکھتے۔">Short version: Your files never leave your device. We don't collect, store, or see your documents — ever.</span></p></div>
+    <h2 data-en="How Our Tools Work" data-ur="ہمارے ٹولز کیسے کام کرتے ہیں">How Our Tools Work</h2>
+    <p data-en="All file processing happens entirely in your web browser using JavaScript. Your files are never uploaded to any server." data-ur="تمام فائل پروسیسنگ آپ کے براؤزر میں ہوتی ہے۔ فائلیں کسی سرور پر اپ لوڈ نہیں ہوتیں۔">All file processing happens entirely in your web browser using JavaScript. Your files are never uploaded to any server.</p>
+    <h2 data-en="What We Do NOT Collect" data-ur="ہم کیا نہیں جمع کرتے">What We Do NOT Collect</h2>
+    <ul>
+      <li data-en="Your PDF files or any documents" data-ur="آپ کی PDF فائلیں یا دستاویزات">Your PDF files or any documents</li>
+      <li data-en="File names or contents" data-ur="فائل کے نام یا مواد">File names or contents</li>
+      <li data-en="Personal information" data-ur="ذاتی معلومات">Personal information</li>
+      <li data-en="Account data (we have no accounts)" data-ur="اکاؤنٹ ڈیٹا (ہمارے پاس کوئی اکاؤنٹ نہیں)">Account data (we have no accounts)</li>
+    </ul>
+    <h2 data-en="Advertising" data-ur="اشتہارات">Advertising</h2>
+    <p data-en="We display ads via Google AdSense to keep the service free. Google may use cookies for relevant ads." data-ur="ہم گوگل AdSense کے ذریعے اشتہارات دکھاتے ہیں تاکہ سروس مفت رہے۔">We display ads via Google AdSense to keep the service free. Google may use cookies for relevant ads.</p>
+    <h2 data-en="Cookies" data-ur="کوکیز">Cookies</h2>
+    <p data-en="We only store your language preference locally. No tracking cookies." data-ur="ہم صرف آپ کی زبان کی ترجیح محفوظ کرتے ہیں۔ کوئی ٹریکنگ کوکی نہیں۔">We only store your language preference locally. No tracking cookies.</p>
+  </div>
+</div>
+
+<!-- ===== TOOL MODALS ===== -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-head">
+      <div class="modal-title">
+        <div id="modalIcon" class="t-icon"></div>
+        <h2 id="modalTitle">Tool</h2>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc" id="modalDesc"></p>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== BLOB ANIMATION =====
+(function(){
+  const canvas = document.getElementById('blobCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W,H,blobs,particles;
+  function resize(){ W=canvas.width=canvas.offsetWidth; H=canvas.height=canvas.offsetHeight; }
+  function mkBlob(x,y,r,color){
+    return { x,y,r,color,angle:Math.random()*Math.PI*2,speed:.003+Math.random()*.002,
+      ox:x,oy:y,rx:60+Math.random()*80,ry:40+Math.random()*60,
+      offs:Array.from({length:6},()=>Math.random()*Math.PI*2),
+      ospeeds:Array.from({length:6},()=>.005+Math.random()*.008) };
+  }
+  function init(){
+    blobs=[
+      mkBlob(W*.25,H*.35,180,'rgba(22,163,74,.10)'),
+      mkBlob(W*.75,H*.55,200,'rgba(22,163,74,.07)'),
+      mkBlob(W*.5,H*.2,140,'rgba(74,222,128,.08)'),
+      mkBlob(W*.15,H*.75,120,'rgba(134,239,172,.09)'),
+      mkBlob(W*.85,H*.2,160,'rgba(249,115,22,.05)'),
+    ];
+    particles=Array.from({length:16},()=>({
+      x:Math.random()*W, y:Math.random()*H,
+      r:2+Math.random()*3,
+      color:Math.random()>.5?'rgba(22,163,74,.15)':'rgba(249,115,22,.12)',
+      vx:(Math.random()-.5)*.4, vy:-.2-Math.random()*.3
+    }));
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    blobs.forEach(b=>{
+      b.angle+=b.speed;
+      b.x=b.ox+Math.cos(b.angle)*b.rx;
+      b.y=b.oy+Math.sin(b.angle*.7)*b.ry;
+      ctx.save(); ctx.filter='blur(50px)'; ctx.fillStyle=b.color;
+      ctx.beginPath();
+      for(let i=0;i<=6;i++){
+        const a=(i/6)*Math.PI*2;
+        const w=Math.sin(b.offs[i%6]*b.ospeeds[i%6]*60)*b.r*.22;
+        const rx=(b.r+w)*Math.cos(a)+b.x, ry=(b.r+w)*Math.sin(a)+b.y;
+        i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);
+      }
+      ctx.closePath(); ctx.fill(); ctx.restore();
+      b.offs=b.offs.map((o,i)=>o+b.ospeeds[i]);
+    });
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}
+      if(p.x<-10)p.x=W+10; if(p.x>W+10)p.x=-10;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color; ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',()=>{resize();init();});
+  resize(); init(); requestAnimationFrame(draw);
+})();
+
+// ===== LANG =====
+let lang = localStorage.getItem('pdfLang') || 'en';
+function applyLang(l){
+  lang=l; localStorage.setItem('pdfLang',l);
+  document.body.classList.toggle('ur', l==='ur');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const t = l==='ur' ? el.getAttribute('data-ur') : el.getAttribute('data-en');
+    if(!t) return;
+    if(el.innerHTML.includes('<')){el.innerHTML=t;}else{el.textContent=t;}
+  });
+  document.querySelectorAll('[data-en-ph]').forEach(el=>{
+    el.placeholder = l==='ur' ? el.getAttribute('data-ur-ph') : el.getAttribute('data-en-ph');
+  });
+  const lb = document.getElementById('langBtn');
+  const lb2 = document.getElementById('mobLangLink');
+  if(lb) lb.textContent = l==='ur' ? 'اردو | EN' : 'EN | اردو';
+  if(lb2) lb2.textContent = l==='ur' ? '🌐 اردو | EN' : '🌐 EN | اردو';
+}
+function toggleLang(){ applyLang(lang==='en'?'ur':'en'); }
+
+// ===== NAV =====
+function toggleMob(){
+  document.getElementById('mobMenu').classList.toggle('open');
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('mobMenu').classList.remove('open');
+}
+
+// ===== SEARCH =====
+document.getElementById('searchInput').addEventListener('input',function(){
+  const q=this.value.toLowerCase().trim();
+  document.querySelectorAll('.tool-card').forEach(c=>{
+    const txt=(c.querySelector('h3')?.textContent||'').toLowerCase()+(c.querySelector('p')?.textContent||'').toLowerCase();
+    c.classList.toggle('hidden', q.length>0 && !txt.includes(q));
+  });
+  document.querySelectorAll('.cat-label').forEach(lb=>{
+    const grid=lb.nextElementSibling;
+    if(!grid) return;
+    const anyVisible=[...grid.querySelectorAll('.tool-card')].some(c=>!c.classList.contains('hidden'));
+    lb.style.display = (anyVisible||q.length===0) ? '' : 'none';
+  });
+});
+
+// ===== MODAL =====
+const toolDefs = {
+  merge:   { en:'Merge PDF',      ur:'PDF ضم کریں',    icon:'#dcfce7|#16a34a', desc_en:'Combine multiple PDF files into one document.',                    desc_ur:'متعدد PDF فائلوں کو ایک میں ملائیں۔' },
+  split:   { en:'Split PDF',      ur:'PDF تقسیم کریں', icon:'#dcfce7|#16a34a', desc_en:'Enter page ranges to extract from your PDF.',                      desc_ur:'PDF سے صفحات نکالنے کے لیے رینج درج کریں۔' },
+  rotate:  { en:'Rotate PDF',     ur:'PDF گھمائیں',    icon:'#dcfce7|#16a34a', desc_en:'Rotate all pages of your PDF to correct orientation.',             desc_ur:'تمام صفحات کی سمت درست کریں۔' },
+  img2pdf: { en:'Image to PDF',   ur:'تصویر سے PDF',   icon:'#dbeafe|#2563eb', desc_en:'Convert JPG or PNG images into a PDF file.',                       desc_ur:'JPG یا PNG تصاویر کو PDF میں بدلیں۔' },
+  pdf2img: { en:'PDF to Image',   ur:'PDF سے تصویر',   icon:'#dbeafe|#2563eb', desc_en:'Convert PDF pages into JPG images.',                               desc_ur:'PDF صفحات کو JPG تصاویر میں بدلیں۔' },
+  compress:{ en:'Compress PDF',   ur:'PDF کمپریس کریں',icon:'#ffedd5|#f97316', desc_en:'Reduce PDF file size without losing quality.',                     desc_ur:'معیار کھوئے بغیر PDF سائز کم کریں۔' },
+  watermark:{en:'Watermark PDF',  ur:'PDF واٹر مارک',  icon:'#fee2e2|#dc2626', desc_en:'Add a custom text watermark to every page of your PDF.',           desc_ur:'اپنی PDF کے ہر صفحے پر واٹر مارک لگائیں۔' },
+  annotate:{ en:'Annotate PDF',   ur:'PDF پر نوٹس',    icon:'#ede9fe|#7c3aed', desc_en:'Add a text annotation (stamp) to your PDF pages.',                 desc_ur:'PDF صفحات پر ٹیکسٹ نوٹ شامل کریں۔' },
+};
+
+let currentTool = null;
+
+function openTool(id){
+  currentTool = id;
+  // Reset state for watermark/annotate tools
+  wmTab = 'text'; wmPos = 'center'; wmImgPos = 'bot-right';
+  wmImgData = null; annotPos = 'top-right';
+  const def = toolDefs[id];
+  const [bg,col] = def.icon.split('|');
+  document.getElementById('modalIcon').style.cssText = `background:${bg};color:${col};width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;`;
+  document.getElementById('modalTitle').textContent = lang==='ur' ? def.ur : def.en;
+  document.getElementById('modalDesc').textContent  = lang==='ur' ? def.desc_ur : def.desc_en;
+  document.getElementById('modalContent').innerHTML = buildToolUI(id);
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  initToolEvents(id);
+}
+
+function closeModal(e){ if(e.target === document.getElementById('modalOverlay')) closeModalDirect(); }
+function closeModalDirect(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  currentTool = null;
+}
+
+function buildToolUI(id){
+  const multi = ['merge','img2pdf'].includes(id);
+  const accept = id==='img2pdf' ? 'image/jpeg,image/png,image/webp' : 'application/pdf';
+  const dropTxt = id==='img2pdf' ? (lang==='ur'?'تصاویر یہاں ڈراپ کریں':'Drop images here') : (lang==='ur'?'PDF یہاں ڈراپ کریں':'Drop PDF here');
+  const subTxt = multi ? (lang==='ur'?'متعدد فائلیں منتخب کریں':'Select multiple files') : (lang==='ur'?'یا کلک کریں':'or click to browse');
+  const icon = id==='img2pdf' ? '🖼️' : '📄';
+
+  let extra = '';
+  if(id==='split'){
+    extra = `<div style="margin-bottom:14px">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">${lang==='ur'?'صفحہ نمبر (مثال: 1,3,5-7)':'Page numbers (e.g. 1,3,5-7)'}</label>
+      <input id="splitPages" type="text" placeholder="${lang==='ur'?'1,2,3':'1,2,3'}" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:14px;outline:none" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#e5e7eb'"/>
+    </div>`;
+  }
+  if(id==='rotate'){
+    extra = `<div style="margin-bottom:14px">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">${lang==='ur'?'گھمانے کا زاویہ':'Rotation angle'}</label>
+      <select id="rotAngle" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:14px;outline:none;background:#fff">
+        <option value="90">90° ${lang==='ur'?'دائیں':'Clockwise'}</option>
+        <option value="180">180°</option>
+        <option value="270">90° ${lang==='ur'?'بائیں':'Counter-clockwise'}</option>
+      </select>
+    </div>`;
+  }
+  if(id==='watermark'){
+    extra = `
+    <!-- Tab switcher: Text vs Image watermark -->
+    <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+      <button id="wmTabText" onclick="wmSwitchTab('text')" style="flex:1;padding:9px;font-family:var(--font);font-size:13px;font-weight:600;border:none;cursor:pointer;background:var(--green);color:#fff;transition:all .2s;">📝 ${lang==='ur'?'متن واٹر مارک':'Text Watermark'}</button>
+      <button id="wmTabImg" onclick="wmSwitchTab('img')" style="flex:1;padding:9px;font-family:var(--font);font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f3f4f6;color:var(--text);transition:all .2s;">🖼️ ${lang==='ur'?'تصویر واٹر مارک':'Image Watermark'}</button>
+    </div>
+
+    <!-- Text watermark panel -->
+    <div id="wmPanelText">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'واٹر مارک متن':'Watermark text'}</label>
+          <input id="wmText" type="text" value="CONFIDENTIAL" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#e5e7eb'"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'سائز':'Font size'}</label>
+          <input id="wmSize" type="number" value="48" min="12" max="120" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#e5e7eb'"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'رنگ':'Color'}</label>
+          <input id="wmColor" type="color" value="#cccccc" style="width:100%;height:38px;border:1.5px solid #e5e7eb;border-radius:8px;padding:2px 4px;cursor:pointer;"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'شفافیت':'Opacity'}: <span id="wmOpacityVal">35%</span></label>
+          <input id="wmOpacity" type="range" min="5" max="80" value="35" style="width:100%;accent-color:var(--green);" oninput="document.getElementById('wmOpacityVal').textContent=this.value+'%'"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'زاویہ':'Rotation'}</label>
+          <select id="wmRotation" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;outline:none;background:#fff;">
+            <option value="45">45° ${lang==='ur'?'ترچھا':'Diagonal'}</option>
+            <option value="0">0° ${lang==='ur'?'سیدھا':'Horizontal'}</option>
+            <option value="90">90° ${lang==='ur'?'عمودی':'Vertical'}</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'کون سے صفحات':'Apply to'}</label>
+          <select id="wmPages" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;outline:none;background:#fff;">
+            <option value="all">${lang==='ur'?'تمام صفحات':'All pages'}</option>
+            <option value="first">${lang==='ur'?'صرف پہلا صفحہ':'First page only'}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Position grid -->
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">${lang==='ur'?'پوزیشن':'Position'}</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin-bottom:14px;" id="wmPosGrid">
+        ${['top-left','top-center','top-right','mid-left','center','mid-right','bot-left','bot-center','bot-right'].map((pos,i)=>`
+          <button onclick="selectWmPos('${pos}')" id="wmPos-${pos}" style="padding:10px 6px;border:1.5px solid #e5e7eb;border-radius:8px;background:${pos==='center'?'var(--green)':'#f9fafb'};color:${pos==='center'?'#fff':'var(--muted)'};font-size:11px;cursor:pointer;font-family:var(--font);transition:all .2s;">
+            ${ ['↖','↑','↗','←','✛','→','↙','↓','↘'][i] }
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <!-- Image watermark panel -->
+    <div id="wmPanelImg" style="display:none;">
+      <div style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;background:#f9fafb;position:relative;margin-bottom:12px;cursor:pointer;" onclick="document.getElementById('wmImgFile').click()">
+        <input type="file" id="wmImgFile" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="wmPreviewImg(this)"/>
+        <div id="wmImgPreview" style="font-size:2rem;margin-bottom:6px;">🖼️</div>
+        <p style="font-size:13px;color:var(--muted);">${lang==='ur'?'لوگو یا تصویر اپ لوڈ کریں (PNG/JPG)':'Upload logo or image (PNG/JPG)'}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'شفافیت':'Opacity'}: <span id="wmImgOpVal">50%</span></label>
+          <input id="wmImgOpacity" type="range" min="5" max="100" value="50" style="width:100%;accent-color:var(--green);" oninput="document.getElementById('wmImgOpVal').textContent=this.value+'%'"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'سائز (%)':'Size (%)'}: <span id="wmImgSzVal">30%</span></label>
+          <input id="wmImgSize" type="range" min="5" max="80" value="30" style="width:100%;accent-color:var(--green);" oninput="document.getElementById('wmImgSzVal').textContent=this.value+'%'"/>
+        </div>
+      </div>
+      <!-- Position grid for image too -->
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">${lang==='ur'?'پوزیشن':'Position'}</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin-bottom:14px;" id="wmImgPosGrid">
+        ${['top-left','top-center','top-right','mid-left','center','mid-right','bot-left','bot-center','bot-right'].map((pos,i)=>`
+          <button onclick="selectWmImgPos('${pos}')" id="wmImgPos-${pos}" style="padding:10px 6px;border:1.5px solid #e5e7eb;border-radius:8px;background:${pos==='bot-right'?'var(--green)':'#f9fafb'};color:${pos==='bot-right'?'#fff':'var(--muted)'};font-size:11px;cursor:pointer;font-family:var(--font);transition:all .2s;">
+            ${ ['↖','↑','↗','←','✛','→','↙','↓','↘'][i] }
+          </button>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  if(id==='annotate'){
+    extra = `
+    <!-- Stamp presets -->
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">${lang==='ur'?'فوری اسٹیمپ':'Quick Stamps'}</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+        ${[['✅ APPROVED','#16a34a'],['❌ REJECTED','#dc2626'],['📋 DRAFT','#f97316'],['🔒 CONFIDENTIAL','#7c3aed'],['✔ REVIEWED','#2563eb'],['⚠ PENDING','#ca8a04']].map(([lbl,col])=>`
+          <button onclick="setAnnotStamp('${lbl}','${col}')" style="padding:6px 12px;border:1.5px solid ${col};border-radius:8px;background:#fff;color:${col};font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .2s;" onmouseover="this.style.background='${col}';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='${col}'">${lbl}</button>`).join('')}
+      </div>
+
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'یا اپنا متن لکھیں':'Or type custom text'}</label>
+      <input id="annotText" type="text" placeholder="${lang==='ur'?'اپنا نوٹ لکھیں':'Type your annotation...'}" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#e5e7eb'"/>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div>
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'رنگ':'Color'}</label>
+        <input id="annotColor" type="color" value="#dc2626" style="width:100%;height:38px;border:1.5px solid #e5e7eb;border-radius:8px;padding:2px 4px;cursor:pointer;"/>
+      </div>
+      <div>
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'سائز':'Font size'}</label>
+        <input id="annotSize" type="number" value="20" min="8" max="72" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;outline:none;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#e5e7eb'"/>
+      </div>
+      <div>
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'کون سے صفحات':'Apply to'}</label>
+        <select id="annotPages" style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;outline:none;background:#fff;">
+          <option value="all">${lang==='ur'?'تمام صفحات':'All pages'}</option>
+          <option value="first">${lang==='ur'?'صرف پہلا':'First page only'}</option>
+          <option value="last">${lang==='ur'?'صرف آخری':'Last page only'}</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px">${lang==='ur'?'شفافیت':'Opacity'}: <span id="annotOpVal">85%</span></label>
+        <input id="annotOpacity" type="range" min="10" max="100" value="85" style="width:100%;accent-color:var(--green);" oninput="document.getElementById('annotOpVal').textContent=this.value+'%'"/>
+      </div>
+    </div>
+
+    <!-- Position grid for annotation -->
+    <label style="display:block;font-size:13px;font-weight:600;margin-bottom:8px">${lang==='ur'?'پوزیشن':'Position on page'}</label>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin-bottom:6px;" id="annotPosGrid">
+      ${['top-left','top-center','top-right','mid-left','center','mid-right','bot-left','bot-center','bot-right'].map((pos,i)=>`
+        <button onclick="selectAnnotPos('${pos}')" id="annotPos-${pos}" style="padding:10px 6px;border:1.5px solid #e5e7eb;border-radius:8px;background:${pos==='top-right'?'var(--green)':'#f9fafb'};color:${pos==='top-right'?'#fff':'var(--muted)'};font-size:11px;cursor:pointer;font-family:var(--font);transition:all .2s;">
+          ${ ['↖','↑','↗','←','✛','→','↙','↓','↘'][i] }
+        </button>`).join('')}
+    </div>`;
+  }
+
+  const btnLabel = {
+    merge:    lang==='ur'?'PDFs ضم کریں':'Merge PDFs',
+    split:    lang==='ur'?'صفحات نکالیں':'Extract Pages',
+    rotate:   lang==='ur'?'PDF گھمائیں':'Rotate PDF',
+    img2pdf:  lang==='ur'?'PDF بنائیں':'Convert to PDF',
+    pdf2img:  lang==='ur'?'تصاویر بنائیں':'Convert to Images',
+    compress: lang==='ur'?'کمپریس کریں':'Compress PDF',
+    watermark:lang==='ur'?'واٹر مارک لگائیں':'Add Watermark',
+    annotate: lang==='ur'?'نوٹ شامل کریں':'Add Annotation',
+  }[id];
+
+  return `
+    <div class="upload-area" id="tUpload">
+      <input type="file" id="tFile" accept="${accept}" ${multi?'multiple':''}/>
+      <div class="upload-icon">${icon}</div>
+      <h3>${dropTxt}</h3>
+      <p>${subTxt}</p>
+    </div>
+    <div class="file-list" id="tList"></div>
+    ${extra}
+    <div class="action-area">
+      <div class="progress-bar" id="tProg"><div class="progress-fill" id="tFill"></div></div>
+      <p class="status-msg" id="tStatus"></p>
+      <button class="btn-primary" id="tBtn" disabled onclick="runTool('${id}')">${btnLabel}</button>
+    </div>
+    <div class="result-preview" id="tPreview">
+      <div class="result-preview-head">
+        <span>✅ ${lang==='ur'?'نتیجہ تیار ہے':'Result Ready'}</span>
+        <a class="btn-dl on" id="tDl" style="width:auto;padding:7px 16px;font-size:13px;border-radius:8px;display:inline-flex" download="output.pdf">⬇ ${lang==='ur'?'ڈاؤن لوڈ کریں':'Download'}</a>
+      </div>
+      <div class="result-preview-body" id="tPreviewBody"></div>
+    </div>
+    <div class="priv-note">🔒 <span>${lang==='ur'?'فائلیں صرف آپ کے براؤزر میں — کبھی سرور پر نہیں جاتیں۔':'Files processed in your browser only — never sent to any server.'}</span></div>`;
+}
+
+let toolFiles = [];
+
+function initToolEvents(id){
+  toolFiles = [];
+  const fi = document.getElementById('tFile');
+  const ua = document.getElementById('tUpload');
+  fi.addEventListener('change', e => addToolFiles([...e.target.files]));
+  ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('drag-over'); });
+  ua.addEventListener('dragleave', () => ua.classList.remove('drag-over'));
+  ua.addEventListener('drop', e => {
+    e.preventDefault(); ua.classList.remove('drag-over');
+    addToolFiles([...e.dataTransfer.files]);
+  });
+}
+
+function addToolFiles(newFiles){
+  newFiles.forEach(f => toolFiles.push(f));
+  renderToolList();
+}
+
+function renderToolList(){
+  const list = document.getElementById('tList');
+  if(!list) return;
+  list.innerHTML = '';
+  toolFiles.forEach((f,i) => {
+    const d = document.createElement('div');
+    d.className = 'f-item';
+    d.innerHTML = `<span class="f-icon">${f.type.startsWith('image')? '🖼️':'📄'}</span>
+      <span class="f-name" title="${f.name}">${f.name}</span>
+      <span class="f-size">${fmtSize(f.size)}</span>
+      <button class="f-del" onclick="removeToolFile(${i})">✕</button>`;
+    list.appendChild(d);
+  });
+  const btn = document.getElementById('tBtn');
+  if(btn) btn.disabled = toolFiles.length === 0;
+  const preview = document.getElementById('tPreview');
+  if(preview) preview.classList.remove('on');
+  const st = document.getElementById('tStatus');
+  if(st){ st.textContent=''; st.className='status-msg'; }
+}
+
+function removeToolFile(i){ toolFiles.splice(i,1); renderToolList(); }
+function fmtSize(b){ if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+
+function setProgress(p){ const f=document.getElementById('tFill'); if(f) f.style.width=p+'%'; }
+function setStatus(msg,type=''){
+  const el=document.getElementById('tStatus');
+  if(el){ el.textContent=msg; el.className='status-msg'+(type?' '+type:''); }
+}
+function showDownload(url, name){
+  const dl = document.getElementById('tDl');
+  if(dl){ dl.href=url; dl.download=name; }
+  const preview = document.getElementById('tPreview');
+  if(preview) preview.classList.add('on');
+}
+
+function showPDFPreview(url){
+  const body = document.getElementById('tPreviewBody');
+  if(!body) return;
+  body.innerHTML = `<iframe class="pdf-preview-frame" src="${url}"></iframe>`;
+}
+
+function showImagePreview(urls){
+  const body = document.getElementById('tPreviewBody');
+  if(!body) return;
+  const imgs = urls.map(u => `<img src="${u}" onclick="window.open('${u}')"/>`).join('');
+  body.innerHTML = `<div class="img-preview-grid">${imgs}</div>`;
+}
+
+function showInfoPreview(rows){
+  const body = document.getElementById('tPreviewBody');
+  if(!body) return;
+  const rowsHTML = rows.map(r =>
+    `<div class="result-info-row"><span class="label">${r.label}</span><span class="value ${r.green?'green':''}">${r.value}</span></div>`
+  ).join('');
+  body.innerHTML = `<div class="result-info-card">${rowsHTML}</div>`;
+}
+function startProg(){ const p=document.getElementById('tProg'); if(p) p.classList.add('on'); setProgress(0); }
+function endProg(){ setTimeout(()=>{ const p=document.getElementById('tProg'); if(p) p.classList.remove('on'); },1200); }
+
+async function runTool(id){
+  if(!toolFiles.length) return;
+  const btn = document.getElementById('tBtn');
+  if(btn) btn.disabled=true;
+  startProg();
+
+  try {
+    if(id==='merge') await doMerge();
+    else if(id==='compress') await doCompress();
+    else if(id==='img2pdf') await doImg2PDF();
+    else if(id==='rotate') await doRotate();
+    else if(id==='split') await doSplit();
+    else if(id==='watermark') await doWatermark();
+    else if(id==='annotate') await doAnnotate();
+    else if(id==='pdf2img') await doPDF2Img();
+  } catch(e){
+    setStatus('❌ Error: '+e.message,'err');
+  }
+  if(btn) btn.disabled=false;
+  endProg();
+}
+
+// ---- MERGE ----
+async function doMerge(){
+  if(toolFiles.length<2){ setStatus(lang==='ur'?'کم از کم 2 فائلیں منتخب کریں':'Please select at least 2 PDF files','err'); return; }
+  setStatus(lang==='ur'?'ضم ہو رہا ہے...':'Merging...'); setProgress(10);
+  const { PDFDocument } = PDFLib;
+  const merged = await PDFDocument.create();
+  let totalPages = 0;
+  for(let i=0;i<toolFiles.length;i++){
+    const buf = await toolFiles[i].arrayBuffer();
+    const doc = await PDFDocument.load(buf);
+    totalPages += doc.getPageCount();
+    const pages = await merged.copyPages(doc, doc.getPageIndices());
+    pages.forEach(p => merged.addPage(p));
+    setProgress(10 + (i+1)/toolFiles.length*80);
+  }
+  const bytes = await merged.save();
+  setProgress(100);
+  const url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+  showDownload(url,'merged.pdf');
+  showInfoPreview([
+    { label: lang==='ur'?'فائلیں ضم کی گئیں':'Files merged', value: toolFiles.length },
+    { label: lang==='ur'?'کل صفحات':'Total pages', value: totalPages },
+    { label: lang==='ur'?'نتیجہ سائز':'Result size', value: fmtSize(bytes.length), green: true },
+  ]);
+  showPDFPreview(url);
+  setStatus('','');
+}
+
+// ---- COMPRESS ----
+async function doCompress(){
+  setStatus(lang==='ur'?'کمپریس ہو رہا ہے...':'Compressing — rendering pages...'); setProgress(5);
+  try {
+    // Step 1: Render each page to canvas via pdf.js (real pixel rendering)
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const origBuf = await toolFiles[0].arrayBuffer();
+    const pdfDoc  = await pdfjsLib.getDocument({ data: origBuf.slice(0) }).promise;
+    const totalPages = pdfDoc.numPages;
+
+    // Step 2: Build new PDF from compressed JPEG images
+    const { PDFDocument } = PDFLib;
+    const newDoc = await PDFDocument.create();
+
+    // Quality: 0.6 gives ~60-75% size reduction on image-heavy PDFs
+    const QUALITY = 0.62;
+    const SCALE   = 1.5; // 1.5x = good quality, not too heavy
+
+    for(let i = 1; i <= totalPages; i++){
+      setStatus(
+        lang==='ur' ? `صفحہ ${i}/${totalPages} پروسیس ہو رہا ہے...` : `Processing page ${i} of ${totalPages}...`
+      );
+      setProgress(5 + (i / totalPages) * 80);
+
+      const page     = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale: SCALE });
+      const canvas   = document.createElement('canvas');
+      canvas.width   = viewport.width;
+      canvas.height  = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // Convert canvas to compressed JPEG bytes
+      const jpegDataUrl = canvas.toDataURL('image/jpeg', QUALITY);
+      const jpegBase64  = jpegDataUrl.split(',')[1];
+      const jpegBytes   = Uint8Array.from(atob(jpegBase64), c => c.charCodeAt(0));
+
+      const img  = await newDoc.embedJpg(jpegBytes);
+      const newPage = newDoc.addPage([viewport.width, viewport.height]);
+      newPage.drawImage(img, { x:0, y:0, width: viewport.width, height: viewport.height });
+    }
+
+    setProgress(90);
+    setStatus(lang==='ur'?'فائل محفوظ ہو رہی ہے...':'Saving compressed file...');
+    const compressedBytes = await newDoc.save();
+    setProgress(100);
+
+    const orig = toolFiles[0].size;
+    const neo  = compressedBytes.length;
+    const saved = Math.max(0, Math.round((1 - neo / orig) * 100));
+
+    const url = URL.createObjectURL(new Blob([compressedBytes], { type:'application/pdf' }));
+    showDownload(url, 'compressed.pdf');
+    showInfoPreview([
+      { label: lang==='ur'?'اصل سائز':'Original size',  value: fmtSize(orig) },
+      { label: lang==='ur'?'نیا سائز':'Compressed size', value: fmtSize(neo),   green: true },
+      { label: lang==='ur'?'کمی':'Size reduced',         value: saved + '%',     green: saved > 0 },
+      { label: lang==='ur'?'صفحات':'Pages',              value: totalPages },
+    ]);
+    showPDFPreview(url);
+    setStatus(
+      saved > 0
+        ? (lang==='ur' ? `✅ ${saved}% کمی — ${fmtSize(orig)} سے ${fmtSize(neo)}` : `✅ ${saved}% smaller — ${fmtSize(orig)} → ${fmtSize(neo)}`)
+        : (lang==='ur' ? '✅ فائل پہلے سے آپٹیمائزڈ تھی' : '✅ File was already well-optimized'),
+      'ok'
+    );
+  } catch(e){
+    setStatus('❌ Error: ' + e.message, 'err');
+  }
+}
+
+// ---- IMAGE TO PDF ----
+async function doImg2PDF(){
+  setStatus(lang==='ur'?'تبدیل ہو رہا ہے...':'Converting...'); setProgress(10);
+  const { PDFDocument } = PDFLib;
+  const doc = await PDFDocument.create();
+  for(let i=0;i<toolFiles.length;i++){
+    const buf = await toolFiles[i].arrayBuffer();
+    let img;
+    if(toolFiles[i].type==='image/png') img = await doc.embedPng(buf);
+    else img = await doc.embedJpg(buf);
+    const page = doc.addPage([img.width, img.height]);
+    page.drawImage(img,{x:0,y:0,width:img.width,height:img.height});
+    setProgress(10+(i+1)/toolFiles.length*85);
+  }
+  const bytes = await doc.save();
+  setProgress(100);
+  const url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+  showDownload(url,'images.pdf');
+  showInfoPreview([
+    { label: lang==='ur'?'تصاویر شامل':'Images added', value: toolFiles.length },
+    { label: lang==='ur'?'نتیجہ سائز':'Result size', value: fmtSize(bytes.length), green: true },
+  ]);
+  showPDFPreview(url);
+  setStatus('','');
+}
+
+// ---- ROTATE ----
+async function doRotate(){
+  const degrees = parseInt(document.getElementById('rotAngle')?.value||'90');
+  setStatus(lang==='ur'?'گھمایا جا رہا ہے...':'Rotating...'); setProgress(30);
+  const { PDFDocument, degrees:deg } = PDFLib;
+  const buf = await toolFiles[0].arrayBuffer();
+  const doc = await PDFDocument.load(buf);
+  const pages = doc.getPages();
+  pages.forEach(p => p.setRotation(deg(degrees)));
+  setProgress(80);
+  const bytes = await doc.save();
+  setProgress(100);
+  const url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+  showDownload(url,'rotated.pdf');
+  showInfoPreview([
+    { label: lang==='ur'?'صفحات گھمائے':'Pages rotated', value: pages.length },
+    { label: lang==='ur'?'زاویہ':'Angle', value: degrees+'°', green: true },
+  ]);
+  showPDFPreview(url);
+  setStatus('','');
+}
+
+// ---- SPLIT ----
+async function doSplit(){
+  const raw = document.getElementById('splitPages')?.value||'';
+  if(!raw.trim()){ setStatus(lang==='ur'?'صفحہ نمبر درج کریں':'Enter page numbers','err'); return; }
+  setStatus(lang==='ur'?'صفحات نکالے جا رہے ہیں...':'Extracting pages...'); setProgress(20);
+  const { PDFDocument } = PDFLib;
+  const buf = await toolFiles[0].arrayBuffer();
+  const src = await PDFDocument.load(buf);
+  const total = src.getPageCount();
+  let pageNums = [];
+  raw.split(',').forEach(part=>{
+    part = part.trim();
+    if(part.includes('-')){
+      const [a,b] = part.split('-').map(Number);
+      for(let i=a;i<=Math.min(b,total);i++) pageNums.push(i-1);
+    } else {
+      const n = parseInt(part);
+      if(!isNaN(n) && n>=1 && n<=total) pageNums.push(n-1);
+    }
+  });
+  pageNums = [...new Set(pageNums)].sort((a,b)=>a-b);
+  if(!pageNums.length){ setStatus(lang==='ur'?'درست صفحہ نمبر نہیں':'No valid page numbers found','err'); return; }
+  setProgress(60);
+  const newDoc = await PDFDocument.create();
+  const copied = await newDoc.copyPages(src, pageNums);
+  copied.forEach(p => newDoc.addPage(p));
+  const bytes = await newDoc.save();
+  setProgress(100);
+  const url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+  showDownload(url,'extracted.pdf');
+  showInfoPreview([
+    { label: lang==='ur'?'کل صفحات (اصل)':'Total pages (original)', value: total },
+    { label: lang==='ur'?'نکالے گئے صفحات':'Pages extracted', value: pageNums.length, green: true },
+    { label: lang==='ur'?'نتیجہ سائز':'Result size', value: fmtSize(bytes.length) },
+  ]);
+  showPDFPreview(url);
+  setStatus('','');
+}
+
+// ===== WATERMARK UI STATE =====
+let wmTab = 'text';
+let wmPos = 'center';
+let wmImgPos = 'bot-right';
+let wmImgData = null; // base64 image data
+let annotPos = 'top-right';
+
+function wmSwitchTab(tab){
+  wmTab = tab;
+  const textBtn = document.getElementById('wmTabText');
+  const imgBtn  = document.getElementById('wmTabImg');
+  const textPanel = document.getElementById('wmPanelText');
+  const imgPanel  = document.getElementById('wmPanelImg');
+  if(!textBtn) return;
+  if(tab==='text'){
+    textBtn.style.background='var(--green)'; textBtn.style.color='#fff';
+    imgBtn.style.background='#f3f4f6'; imgBtn.style.color='var(--text)';
+    textPanel.style.display=''; imgPanel.style.display='none';
+  } else {
+    imgBtn.style.background='var(--green)'; imgBtn.style.color='#fff';
+    textBtn.style.background='#f3f4f6'; textBtn.style.color='var(--text)';
+    textPanel.style.display='none'; imgPanel.style.display='';
+  }
+}
+
+function selectWmPos(pos){
+  wmPos = pos;
+  document.querySelectorAll('[id^="wmPos-"]').forEach(btn=>{
+    const active = btn.id === 'wmPos-'+pos;
+    btn.style.background = active ? 'var(--green)' : '#f9fafb';
+    btn.style.color = active ? '#fff' : 'var(--muted)';
+  });
+}
+
+function selectWmImgPos(pos){
+  wmImgPos = pos;
+  document.querySelectorAll('[id^="wmImgPos-"]').forEach(btn=>{
+    const active = btn.id === 'wmImgPos-'+pos;
+    btn.style.background = active ? 'var(--green)' : '#f9fafb';
+    btn.style.color = active ? '#fff' : 'var(--muted)';
+  });
+}
+
+function wmPreviewImg(input){
+  if(!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    wmImgData = e.target.result; // full data URL
+    const prev = document.getElementById('wmImgPreview');
+    if(prev) prev.innerHTML = `<img src="${wmImgData}" style="max-height:80px;max-width:100%;border-radius:8px;object-fit:contain;"/>`;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function selectAnnotPos(pos){
+  annotPos = pos;
+  document.querySelectorAll('[id^="annotPos-"]').forEach(btn=>{
+    const active = btn.id === 'annotPos-'+pos;
+    btn.style.background = active ? 'var(--green)' : '#f9fafb';
+    btn.style.color = active ? '#fff' : 'var(--muted)';
+  });
+}
+
+function setAnnotStamp(label, color){
+  const inp = document.getElementById('annotText');
+  const col = document.getElementById('annotColor');
+  if(inp) inp.value = label;
+  if(col) col.value = color;
+}
+
+// Helper: get x,y from position string for PDF coords (pdf-lib: bottom-left origin)
+function getXY(pos, pageWidth, pageHeight, textWidth, textHeight, margin){
+  margin = margin || 30;
+  const positions = {
+    'top-left':    { x: margin,                          y: pageHeight - margin - textHeight },
+    'top-center':  { x: (pageWidth - textWidth) / 2,     y: pageHeight - margin - textHeight },
+    'top-right':   { x: pageWidth - margin - textWidth,  y: pageHeight - margin - textHeight },
+    'mid-left':    { x: margin,                          y: (pageHeight - textHeight) / 2 },
+    'center':      { x: (pageWidth - textWidth) / 2,     y: (pageHeight - textHeight) / 2 },
+    'mid-right':   { x: pageWidth - margin - textWidth,  y: (pageHeight - textHeight) / 2 },
+    'bot-left':    { x: margin,                          y: margin },
+    'bot-center':  { x: (pageWidth - textWidth) / 2,     y: margin },
+    'bot-right':   { x: pageWidth - margin - textWidth,  y: margin },
+  };
+  return positions[pos] || positions['center'];
+}
+
+// ---- WATERMARK ----
+async function doWatermark(){
+  if(!toolFiles.length){ setStatus(lang==='ur'?'PDF فائل منتخب کریں':'Please select a PDF file','err'); return; }
+
+  setStatus(lang==='ur'?'واٹر مارک لگایا جا رہا ہے...':'Adding watermark...'); setProgress(15);
+
+  try {
+    const { PDFDocument, rgb, degrees } = PDFLib;
+    const buf = await toolFiles[0].arrayBuffer();
+    const doc = await PDFDocument.load(buf);
+    const pages = doc.getPages();
+    const applyTo = document.getElementById('wmPages')?.value || 'all';
+    const targetPages = applyTo === 'first' ? [pages[0]] : pages;
+
+    if(wmTab === 'text'){
+      // ---- TEXT WATERMARK ----
+      const text     = (document.getElementById('wmText')?.value || 'CONFIDENTIAL').trim();
+      const fontSize = parseInt(document.getElementById('wmSize')?.value || '48');
+      const colorHex = document.getElementById('wmColor')?.value || '#cccccc';
+      const opacity  = parseInt(document.getElementById('wmOpacity')?.value || '35') / 100;
+      const rotation = parseInt(document.getElementById('wmRotation')?.value || '45');
+
+      if(!text){ setStatus(lang==='ur'?'واٹر مارک متن درج کریں':'Enter watermark text','err'); return; }
+
+      const hex = colorHex.replace('#','');
+      const cr = parseInt(hex.substring(0,2),16)/255;
+      const cg = parseInt(hex.substring(2,4),16)/255;
+      const cb = parseInt(hex.substring(4,6),16)/255;
+
+      targetPages.forEach((page, i) => {
+        setProgress(15 + (i / targetPages.length) * 70);
+        const { width, height } = page.getSize();
+        // estimate text width for positioning
+        const estTextWidth = text.length * fontSize * 0.55;
+        const { x, y } = getXY(wmPos, width, height, estTextWidth, fontSize, 40);
+        page.drawText(text, {
+          x, y,
+          size: fontSize,
+          color: rgb(cr, cg, cb),
+          opacity,
+          rotate: degrees(rotation),
+        });
+      });
+
+    } else {
+      // ---- IMAGE WATERMARK ----
+      if(!wmImgData){ setStatus(lang==='ur'?'پہلے تصویر اپ لوڈ کریں':'Please upload an image first','err'); return; }
+
+      const opacity  = parseInt(document.getElementById('wmImgOpacity')?.value || '50') / 100;
+      const sizePerc = parseInt(document.getElementById('wmImgSize')?.value || '30') / 100;
+
+      // Embed image
+      let embeddedImg;
+      const base64 = wmImgData.split(',')[1];
+      const imgBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+      if(wmImgData.includes('data:image/png')){
+        embeddedImg = await doc.embedPng(imgBytes);
+      } else {
+        embeddedImg = await doc.embedJpg(imgBytes);
+      }
+
+      for(let i = 0; i < targetPages.length; i++){
+        setProgress(15 + (i / targetPages.length) * 70);
+        const page = targetPages[i];
+        const { width, height } = page.getSize();
+        const imgW = width * sizePerc;
+        const imgH = imgW * (embeddedImg.height / embeddedImg.width);
+        const { x, y } = getXY(wmImgPos, width, height, imgW, imgH, 20);
+        page.drawImage(embeddedImg, { x, y, width: imgW, height: imgH, opacity });
+      }
+    }
+
+    setProgress(90);
+    const bytes = await doc.save();
+    setProgress(100);
+    const url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+    showDownload(url, 'watermarked.pdf');
+    showInfoPreview([
+      { label: lang==='ur'?'نوع':'Type',    value: wmTab==='text'?(lang==='ur'?'متن':'Text'):(lang==='ur'?'تصویر':'Image') },
+      { label: lang==='ur'?'صفحات':'Pages', value: targetPages.length, green: true },
+      { label: lang==='ur'?'پوزیشن':'Position', value: (wmTab==='text'?wmPos:wmImgPos).replace('-',' ') },
+    ]);
+    showPDFPreview(url);
+    setStatus('','');
+
+  } catch(e){
+    setStatus('❌ Error: ' + e.message, 'err');
+  }
+}
+
+// ---- ANNOTATE ----
+async function doAnnotate(){
+  if(!toolFiles.length){ setStatus(lang==='ur'?'PDF فائل منتخب کریں':'Please select a PDF file','err'); return; }
+
+  const text     = (document.getElementById('annotText')?.value || '').trim();
+  if(!text){ setStatus(lang==='ur'?'متن یا اسٹیمپ منتخب کریں':'Enter text or select a stamp','err'); return; }
+
+  const colorHex = document.getElementById('annotColor')?.value || '#dc2626';
+  const fontSize = parseInt(document.getElementById('annotSize')?.value || '20');
+  const opacity  = parseInt(document.getElementById('annotOpacity')?.value || '85') / 100;
+  const applyTo  = document.getElementById('annotPages')?.value || 'all';
+
+  setStatus(lang==='ur'?'نوٹ شامل ہو رہا ہے...':'Adding annotation...'); setProgress(15);
+
+  try {
+    const { PDFDocument, rgb } = PDFLib;
+    const buf = await toolFiles[0].arrayBuffer();
+    const doc = await PDFDocument.load(buf);
+    const allPages = doc.getPages();
+
+    let targetPages;
+    if(applyTo === 'first')      targetPages = [allPages[0]];
+    else if(applyTo === 'last')  targetPages = [allPages[allPages.length - 1]];
+    else                         targetPages = allPages;
+
+    const hex = colorHex.replace('#','');
+    const cr = parseInt(hex.substring(0,2),16)/255;
+    const cg = parseInt(hex.substring(2,4),16)/255;
+    const cb = parseInt(hex.substring(4,6),16)/255;
+
+    targetPages.forEach((page, i) => {
+      setProgress(15 + (i / targetPages.length) * 70);
+      const { width, height } = page.getSize();
+      const estW = text.length * fontSize * 0.55;
+      const { x, y } = getXY(annotPos, width, height, estW, fontSize, 24);
+      page.drawText(text, {
+        x, y,
+        size: fontSize,
+        color: rgb(cr, cg, cb),
+        opacity,
+      });
+    });
+
+    setProgress(90);
+    const bytes = await doc.save();
+    setProgress(100);
+
+    const url = URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+    showDownload(url, 'annotated.pdf');
+    showInfoPreview([
+      { label: lang==='ur'?'متن':'Text',         value: text },
+      { label: lang==='ur'?'صفحات':'Pages',       value: targetPages.length, green: true },
+      { label: lang==='ur'?'پوزیشن':'Position',   value: annotPos.replace('-',' ') },
+    ]);
+    showPDFPreview(url);
+    setStatus('','');
+
+  } catch(e){
+    setStatus('❌ Error: ' + e.message, 'err');
+  }
+}
+
+// ---- PDF TO IMAGE ----
+async function doPDF2Img(){
+  setStatus(lang==='ur'?'تصاویر بنائی جا رہی ہیں...':'Converting pages to images...'); setProgress(10);
+  try {
+    // Set pdf.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const buf = await toolFiles[0].arrayBuffer();
+    const pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+    const totalPages = pdfDoc.numPages;
+    const imageUrls = [];
+    const zipLinks = [];
+
+    for(let i = 1; i <= totalPages; i++){
+      const page = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale: 2.0 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      imageUrls.push(dataUrl);
+      setProgress(10 + (i/totalPages)*80);
+    }
+
+    setProgress(95);
+
+    // Show image previews
+    showImagePreview(imageUrls);
+
+    // Create download links for each page
+    const body = document.getElementById('tPreviewBody');
+    if(body){
+      const dlRow = document.createElement('div');
+      dlRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;';
+      imageUrls.forEach((url, i) => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `page-${i+1}.jpg`;
+        a.className = 'btn-dl on';
+        a.style.cssText = 'width:auto;padding:6px 14px;font-size:13px;border-radius:8px;display:inline-flex;';
+        a.textContent = `⬇ Page ${i+1}`;
+        dlRow.appendChild(a);
+      });
+      body.appendChild(dlRow);
+    }
+
+    // Update main download button with first image
+    const dl = document.getElementById('tDl');
+    if(dl){ dl.href=imageUrls[0]; dl.download='page-1.jpg'; }
+    const preview = document.getElementById('tPreview');
+    if(preview) preview.classList.add('on');
+
+    setProgress(100);
+    setStatus(lang==='ur'?`✅ ${totalPages} صفحات تصاویر میں بدل گئے!`:`✅ ${totalPages} page(s) converted to images!`,'ok');
+  } catch(e){
+    setStatus('❌ Error: '+e.message,'err');
+  }
+}
+
+// Init lang on load
+document.addEventListener('DOMContentLoaded',()=>applyLang(lang));
+</script>
+</body>
+</html>
